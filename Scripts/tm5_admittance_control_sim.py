@@ -10,7 +10,7 @@ from math import pi
 """
 Mujoco Model Setup
 """
-m = mj.MjModel.from_xml_path(r'C:\Users\15738\Desktop\Admittance_control\AR_Project_Admittance_Control\TM5_Description\scene.xml')
+m = mj.MjModel.from_xml_path(r'C:\Users\15738\Desktop\AR_project\Advanced_Robotics_Project\TM5_Description\scene.xml')
 m.opt.gravity[0] = 0.0  # x轴重力
 m.opt.gravity[1] = 0.0  # y轴重力
 m.opt.gravity[2] = 0.0  # z轴重力
@@ -21,7 +21,7 @@ m.opt.timestep = 0.01
 Ikpy Setup
 """
 # End Effector-joint6 to joint3
-TM5_Joint = ikpy.chain.Chain.from_urdf_file(r"C:\Users\15738\Desktop\Admittance_control\AR_Project_Admittance_Control\TM5.urdf")
+TM5_Joint = ikpy.chain.Chain.from_urdf_file(r"C:\Users\15738\Desktop\AR_project\Advanced_Robotics_Project\Scripts\TM5.urdf")
 
 """
 Admittance Algorithm
