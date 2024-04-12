@@ -142,6 +142,7 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
             viewer.sync()
             t= t+1
             applied_force = d.xfrc_applied[links_len-2] #read external forces in mujoco 
+            # d.xfrc_applied[links_len-2] = [0,0,0,0,0,0]
             wrench_external_ = applied_force.reshape(-1, 1)
             arm_position_ = np.array(d.xpos[links_len-2]).reshape(-1, 1)  # Current arm end effector position
             arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation
