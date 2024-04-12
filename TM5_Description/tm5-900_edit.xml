@@ -1,0 +1,130 @@
+<mujoco model="tm5-900">
+  <compiler angle="radian" autolimits="true"/>
+  <!-- <statistic meansize="0.175669" extent="1.35285" center="1.18943e-07 -0.089114 0.574236"/> -->
+  <option integrator="implicitfast"/>
+
+  <default>
+  <default class="tm5-900">
+    <material specular="0.5" shininess="0.25"/>
+    <joint axis="0 1 0" range="-6.28319 6.28319" armature="0.1"/>
+    <general gaintype="fixed" biastype="affine" ctrlrange="-6.2831 6.2831" gainprm="2000" biasprm="0 -2000 -400"
+      forcerange="-150 150"/>
+    <default class="size3">
+      <default class="size3_limited">
+        <joint range="-3.1415 3.1415"/>
+        <general ctrlrange="-3.1415 3.1415"/>
+      </default>
+    </default>
+
+    <default class="size4">
+      <default class="size4_limited">
+        <joint range="-4.71238898038469 4.71238898038469"/>
+        <general ctrlrange="-4.71238898038469 4.71238898038469"/>
+      </default>
+    </default>
+
+    <default class="size5">
+      <default class="size5_limited">
+        <joint range="-2.705260340591211 2.705260340591211"/>
+        <general ctrlrange="-2.705260340591211 2.705260340591211"/>
+      </default>
+    </default>
+    <default class="size6">
+      <default class="size6_limited">
+        <joint range="-1.57 1.57"/>
+        <general ctrlrange="-1.57 1.57"/>
+      </default>
+    </default>
+    <default class="size1">
+      <general gainprm="500" biasprm="0 -500 -100" forcerange="-28 28"/>
+    </default>
+    <default class="visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+    </default>
+    <default class="collision">
+      <geom type="capsule" group="3"/>
+      <default class="eef_collision">
+        <geom type="cylinder"/>
+      </default>
+    </default>
+    <site size="0.001" rgba="0.5 0.5 0.5 0.3" group="4"/>
+  </default>
+</default>
+  <asset>
+    <material class="tm5-900" name="black" rgba="0.033 0.033 0.033 1"/>
+    <material class="tm5-900" name="jointgray" rgba="0.278 0.278 0.278 1"/>
+    <material class="tm5-900" name="linkgray" rgba="0.82 0.82 0.82 1"/>
+    <material class="tm5-900" name="urblue" rgba="0.49 0.678 0.8 1"/>
+    <mesh name="tm5-base_c" file="tm5-base.obj"/>
+    <mesh name="tmr_400w_01_c" file="tmr_400w_01.obj"/>
+    <mesh name="tm5-900_arm1_c" file="tm5-900_arm1.obj"/>
+    <mesh name="tm5-900_arm2_c" file="tm5-900_arm2.obj"/>
+    <mesh name="tmr_100w_01_c" file="tmr_100w_01.obj"/>
+    <mesh name="tmr_100w_02_c" file="tmr_100w_02.obj"/>
+    <mesh name="tmr_ee_c" file="tmr_ee.obj"/>
+  </asset>
+  <worldbody>
+    <light name="spotlight" mode="targetbodycom" target="link_2" pos="0 -1 2"/>
+    <body name="base" quat="0 0 0 1" childclass="tm5-900">
+      <inertial mass="4.0" pos="0 0 0" diaginertia="0.00443333156 0.00443333156 0.0072"/>
+      <geom type="mesh" material="black" mesh="tm5-base_c" class="visual"/>
+      
+      <body name="link_1" pos="0 0 0.1452"   childclass="tm5-900">
+      <!-- <body name="link_1" pos="0 0 10" childclass="tm5-900"> -->
+        <inertial mass="1.0" pos="0 0 0" diaginertia="0.00110833289 0.00110833289 0.0018"/>
+        <joint name="joint_1" pos="0 0 0" class = "size4" axis="0 0 1" range="-4.71239 4.71239"/>
+        <geom type="mesh"  material="jointgray" mesh="tmr_400w_01_c" class="visual"/>
+        <geom class="collision" mesh = "tmr_400w_01_c"/>
+
+        <body name="link_2" quat="1 0 1 0">
+        <!-- <body name="link_2" quat="1 0 1 0"> -->
+          <inertial mass="4.032" pos="0 0 0" diaginertia="0.035482079808 0.046565495424 0.04826336659199999"/>
+          <joint name="joint_2" pos="0 0 0" class = "size6_limited" axis="0 0 1" range="-3.14159 3.14159"/>
+          <geom type="mesh"   material="jointgray" mesh="tm5-900_arm1_c" class="visual"/>
+          <geom class="collision" mesh = "tm5-900_arm1_c"/>
+
+
+          <body name="link_3" pos="0.429 0 0">
+            <inertial mass="8.897" pos="0 0 0" diaginertia="0.217614347615 1.831791016552 1.8903760586662"/>
+            <joint name="joint_3" pos="0 0 0" class = "size5" axis="0 0 1" range="-2.70526 2.70526"/>
+            <geom type="mesh"   material="jointgray" mesh="tm5-900_arm2_c" class="visual"/>
+            <geom class="collision" mesh = "tm5-900_arm2_c"/>
+
+
+            <body name="link_4" pos="0.4115 0 -0.1223" quat="1 0 1 0">
+              <inertial mass="2.443" pos="0 0 0" diaginertia="0.008875389684 0.08882567218 0.090136058292"/>
+              <joint name="joint_4" pos="0 0 0" class = "size3" axis="0 0 1" range="-3.14159 3.14159"/>
+              <geom type="mesh"  material="jointgray" mesh="tmr_100w_01_c" class="visual"/>
+              <geom class="collision" mesh = "tmr_100w_01_c"/>
+
+
+              <body name="link_5" pos="0 -0.106 0" >
+                <inertial mass="1.576" pos="0 0 0" diaginertia="0.00324404628 0.004039412504000001 0.00416569896"/>
+                <joint name="joint_5" pos="0 0 0" class = "size3" axis="0 0 1" range="-3.14159 3.14159"/>
+                <geom type="mesh"  material="jointgray" mesh="tmr_100w_02_c" class="visual"/>
+                <geom class="collision" mesh = "tmr_100w_02_c"/>
+
+
+                <body name="link_6" pos="0 -0.11315 0" quat="1 1 0 0">
+                  <inertial mass="1.576" pos="0 0 0" diaginertia="0.00324404628 0.004039412504000001 0.00416569896"/>
+                  <joint name="joint_6" pos="0 0 0" class = "size4" axis="0 0 1" range="-4.71239 4.71239"/>
+                  <geom type="mesh"   material="urblue" mesh="tmr_ee_c" class="visual"/>
+                  <geom class="collision" mesh = "tmr_ee_c"/>
+
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <general class="size4" name="shoulder_pan" joint="joint_1"/>
+    <general class="size6" name="shoulder_lift" joint="joint_2"/>
+    <general class="size5" name="elbow" joint="joint_3"/>
+    <general class="size3" name="wrist_1" joint="joint_4"/>
+    <general class="size3" name="wrist_2" joint="joint_5"/>
+    <general class="size4" name="wrist_3" joint="joint_6"/>
+  </actuator>
+</mujoco>
