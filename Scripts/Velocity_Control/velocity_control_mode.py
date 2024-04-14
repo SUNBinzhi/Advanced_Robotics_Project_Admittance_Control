@@ -18,14 +18,14 @@ TM5_chain = ikpy.chain.Chain.from_urdf_file(r"C:\Users\15738\Desktop\AR_project\
 M_param = 1e1
 M = np.diag([M_param,M_param,M_param,M_param,M_param,M_param])
 
-d_param =100 #50
-d_param_rot =100 #50
+d_param =200 #50
+d_param_rot =200 #50
 D = np.diag([d_param, d_param, d_param, d_param_rot, d_param_rot, d_param_rot])
-k_param =100 #100
-k_param_rot = 100#100
+k_param =200 #100
+k_param_rot = 200#100
 K = np.diag([k_param, k_param, k_param, k_param_rot, k_param_rot, k_param_rot])
-arm_max_acc_ = 100.0  # Maximum acceleration
-arm_max_vel_ = 100.0  # Maximum velocity
+arm_max_acc_ = 10.0  # Maximum acceleration
+arm_max_vel_ = 0.5  # Maximum velocity
 
 m = mj.MjModel.from_xml_path(r'C:\Users\15738\Desktop\AR_project\Advanced_Robotics_Project\TM5_Description\scene_velocity.xml')
 m.opt.gravity[0] = 0.0  # x轴重力
@@ -183,10 +183,10 @@ def Mujoco_Thread():
         while 1:  
             viewer.sync()  
             error = np.zeros((6, 1))
-            wrench_external  = d.xfrc_applied[7]
+            # wrench_external  = d.xfrc_applied[7]
             # d.xfrc_applied[7]  = np.array([0,0,0,0,0,0])
 
-            # wrench_external  = np.array([10*math.sin(count/1000),10*math.sin(count/1000),0,0,0,0])
+            wrench_external  = np.array([100*math.sin(count/1000),0,0,0,0,0])
             # wrench_external  = np.array([0,1,0,0,0,0])
             #############################################################
             #              Parameter set for Admittance Control         #
