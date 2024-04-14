@@ -122,6 +122,16 @@ def inverse_controller(chain,pos,euler):
     return result
 
 
+def update_orientation(current_orientation, angular_velocity, dt):
+    # Ensure angular_velocity is a 1D array with shape (3,)
+    angular_velocity = angular_velocity.flatten()  # This changes shape from (3, 1) to (3,)
+    
+    # Create a rotation from the angular velocity (assuming small angle approximation)
+    delta_rotation = R.from_rotvec(angular_velocity * dt)
+    
+    # Update the current orientation by multiplying the quaternion
+    new_orientation = current_orientation * delta_rotation
+    return new_orientation
 
 
 
@@ -152,7 +162,10 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
 
             wrench_external_ = applied_force.reshape(-1, 1)
             arm_position_ = np.array(d.xpos[links_len-2]).reshape(-1, 1)  # Current arm end effector position
-            arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation
+            arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation mujoco
+
+            current_angular,current_linear= forward_controller(chain,d.qpos[0:links_len-3])
+            arm_orientation_ = R.from_matrix(current_angular)  # Current arm end effector orientation ikpy
             arm_desired_twist_adm_,linear_disp,angular_disp,error = admittance_control_fixed(d,error, 
                         arm_position_, 
                         desired_pose_position_, 
@@ -163,14 +176,22 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
                         wrench_external_)
             print(desired_pose_position_)
             
+            #linear update
             current_angular,current_linear= forward_controller(chain,d.qpos[0:links_len-3])
             new_linear = current_linear +linear_disp.reshape([3,])
-            fix_angular,fix_linear = forward_controller(chain,initial_pos[0:links_len-3])
-            # new_angular = R.as_matrix(desired_pose_orientation_)
-            new_angular = fix_angular
-            result_check = inverse_controller(chain,new_linear,new_angular)
-            #gpt code here, compare result_check and initial_joints , if the rotate |angle| > pi/4,the angle should not exceed the limit. Joint is a 6d vector
 
+            #angular update
+            #fix version
+            fix_angular,fix_linear = forward_controller(chain,initial_pos[0:links_len-3])
+            new_angular = fix_angular
+
+            #none-fixed angular update
+            # new_angular = R.from_matrix(current_angular).as_euler('xyz')+angular_disp
+            # new_orientation  = update_orientation(R.from_matrix(current_angular), arm_desired_twist_adm_[3:], m.opt.timestep)
+            # new_angular = new_orientation.as_euler('xyz')
+            # print('666',new_angular)
+
+            result_check = inverse_controller(chain,new_linear,new_angular)
             angle_difference = result_check - initial_joints
             angle_difference = np.clip(angle_difference, -np.pi/3, np.pi/3)
             result_after_check = initial_joints + angle_difference
