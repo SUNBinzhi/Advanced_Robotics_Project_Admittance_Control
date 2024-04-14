@@ -6,6 +6,7 @@ from scipy.spatial.transform import Rotation as R
 import ikpy.chain
 import time
 from math import pi
+from math import cos,sin
 
 """
 Mujoco Model Setup
@@ -115,8 +116,9 @@ def forward_controller(chain,angles):
 
 
 def inverse_controller(chain,pos,euler):
+    global initial_pos
     links_len = len(chain.links) 
-    result = chain.inverse_kinematics(pos,euler,"all")[2:links_len-1]
+    result = chain.inverse_kinematics(pos,euler,orientation_mode="all",optimizer='least_squares')[2:links_len-1]
     return result
 
 
@@ -141,8 +143,9 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
         while viewer.is_running():
             viewer.sync()
             t= t+1
-            applied_force = d.xfrc_applied[links_len-2] #read external forces in mujoco 
-            # d.xfrc_applied[links_len-2] = [0,0,0,0,0,0]
+            # applied_force = d.xfrc_applied[links_len-2] #read external forces in mujoco 
+            d.xfrc_applied[links_len-2] = [0,0,100*sin(t/100),0,0,0]
+            applied_force =  d.xfrc_applied[links_len-2]
             wrench_external_ = applied_force.reshape(-1, 1)
             arm_position_ = np.array(d.xpos[links_len-2]).reshape(-1, 1)  # Current arm end effector position
             arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation
@@ -174,22 +177,14 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
             mj.mj_step(m, d)
             # time.sleep(0.01)
         
-initial_pos = [-4.28372736e-03, -4.88533739e-01, 1.57943555e+00, -1.09090181e+00, 1.56651260e+00, -1.95721289e-12]
+initial_pos = [-4.28372736e-03, -4.88533739e-01, 1.57943555e+00, -1.09090181e+00+pi/2, 1.56651260e+00, -1.95721289e-12]
 def main():
     global joint_pos, joint_ori,initial_pos
 
     chain = TM5_Joint
-    D_Pos = np.array([0.27629562, -0.12396941 , 0.82000005]).reshape([3,1])
-    D_Ori = [-5.02137269e-01 ,-5.02137270e-01 ,-4.97853556e-01 ,-4.97853555e-01]
-    # print(Joint_Pos):[[ 0.27629562 -0.12396941  0.82000005] ----9
-                    # [ 0.16314977 -0.12300002  0.82000005] ----8
-                    # [ 0.16314977 -0.12300002  0.71400005] ----7
-                    # [-0.20134143  0.0008625   0.52401643]]    ----6
-    
-    # print(Joint_Ori) :[[-5.02137269e-01 -5.02137270e-01 -4.97853556e-01 -4.97853555e-01]
-    #                 [-7.10129337e-01 -3.55775981e-10 -3.55775859e-10 -7.04071250e-01]
-    #                 [-7.07105159e-01  7.07105159e-01 -1.51452553e-03  1.51452482e-03]
-    #                 [-6.86487028e-01  6.87206886e-01  1.66573393e-01  1.69515663e-01]]
+    D_Pos = np.array([ 0.26914695, -0.1239387,   0.60085104]).reshape([3,1])
+    D_Ori = [ 0.70861783,  0.70558925, -0.00151765,  0.00151139]
+
     Control_Loop(chain,initial_pos,D_Pos,D_Ori)
 
 if __name__ == '__main__':

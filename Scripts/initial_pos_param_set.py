@@ -30,7 +30,7 @@ def forward_controller(chain,angles):
         return rotation_matrix, xyz_coordinates
 
 
-joint_angles = [-4.28372736e-03, -4.88533739e-01, 1.57943555e+00, -1.09090181e+00, 1.56651260e+00, -1.95721289e-12]
+joint_angles = [-4.28372736e-03, -4.88533739e-01, 1.57943555e+00, -1.09090181e+00+pi/2, 1.56651260e+00, -1.95721289e-12]
 
 t = 0
 with mj.viewer.launch_passive(m, d) as viewer:
@@ -46,3 +46,4 @@ with mj.viewer.launch_passive(m, d) as viewer:
 print('current pos xyz = ',xyz)
 print('current quat by ikpy = ',quat)
 print('current quat by mujoco = ',d.xquat[7])
+print(ikpy._version)
