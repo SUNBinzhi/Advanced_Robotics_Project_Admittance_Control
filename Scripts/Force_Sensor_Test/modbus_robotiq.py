@@ -62,4 +62,5 @@ if __name__ == '__main__':
     while 1:
         time.sleep(1)
         res = client_ft.get_data()
-        print(res)
+        
+        print(res.shape)

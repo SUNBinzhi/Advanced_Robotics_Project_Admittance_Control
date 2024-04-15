@@ -205,7 +205,7 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
             viewer.sync()
             t= t+1
             #---force by mouse
-            applied_force = d.xfrc_applied[links_len-2] #read external forces in mujoco 
+            # applied_force = d.xfrc_applied[links_len-2] #read external forces in mujoco 
 
             #force by program
             # d.xfrc_applied[links_len-2] = [0,0,100*sin(t/100),0,0,0]
@@ -213,10 +213,15 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori):
             
             #---force by sensor
             # d.xfrc_applied[links_len-2] = client_ft.get_data()-initial_force_data
-            applied_force =client_ft.get_data()-initial_force_data # d.xfrc_applied[links_len-2]/100
+            sensor_force =client_ft.get_data()-initial_force_data # d.xfrc_applied[links_len-2]/100
+            applied_force = np.zeros([6,])
+            applied_force[0] = -sensor_force[0][1]
+            applied_force[1] = -sensor_force[0][0]
+            applied_force[2] = -sensor_force[0][2]
+            
             print( d.xfrc_applied[links_len-2])
 
-            wrench_external_ = applied_force.reshape(-1, 1)
+            wrench_external_ = applied_force.reshape(-1, 1)/2
             arm_position_ = np.array(d.xpos[links_len-2]).reshape(-1, 1)  # Current arm end effector position
             arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation mujoco
 
