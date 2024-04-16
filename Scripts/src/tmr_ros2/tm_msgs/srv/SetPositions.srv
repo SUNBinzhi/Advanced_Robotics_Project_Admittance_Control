@@ -1,0 +1,55 @@
+#motion_type :  PTP_J , PTP_T , LINE_J , LINE_T ,
+#               CIRC_J ,CIRC_T , PLINE_J ,PLINE_T
+# PTP_J (Point-to-Point Joint):
+# This motion type moves the robot from one point to another in joint space, 
+# meaning each joint moves independently to its destination position. 
+# It's typically the fastest way to move but doesn't guarantee a linear path in Cartesian space.
+
+# PTP_T (Point-to-Point Tool):
+# Similar to PTP_J, but the movement is defined in tool coordinates.
+#  It focuses on the position and orientation of the tool rather than the individual joint positions.
+
+# LINE_J (Linear Joint):
+# This instructs the robot to move in a straight line in joint space.
+# It's less common as moving in a straight line in joint space does not usually result in a straight line in Cartesian space.
+
+# LINE_T (Linear Tool):
+# The robot moves in a straight line in Cartesian space.
+# This is commonly used for tasks like welding, where maintaining a linear path is crucial.
+
+# CIRC_J (Circular Joint):
+# The robot moves in a circular path defined in joint space. 
+# Like LINE_J, this doesn’t often correspond to a circular path in Cartesian space.
+
+# CIRC_T (Circular Tool):
+# The robot moves in a circular path in Cartesian space. 
+# This is useful for tasks that require circular motion, such as painting or grinding along a curved surface.
+
+# PLINE_J (Polyline Joint):
+# This command could be interpreted as instructing
+# the robot to move through a series of points in joint space, 
+# forming a polyline. It's less common and the exact behavior might depend on the robot's control system.
+
+# PLINE_T (Polyline Tool):
+# Similar to PLINE_J, but the movement is through a series of points in Cartesian space. 
+# This can be used for complex paths where straight lines and arcs are combined.
+
+# More details please refer to the TM_Robot_Expression.pdf(1.76 rev1.00) Chapter 8.6-8.9
+int8 PTP_J = 1
+int8 PTP_T = 2
+#int8 LINE_J = 3
+int8 LINE_T = 4
+#int8 CIRC_J = 5
+int8 CIRC_T = 6
+#int8 PLINE_J = 7
+int8 PLINE_T = 8
+
+int8 motion_type
+float64[] positions
+float64 velocity       # motion velocity: if expressed in Cartesian coordinate (unit: m/s) , if expressed in joint velocity (unit: rad/s, and the maximum value is limited to pi )
+float64 acc_time       # time to reach maximum speed (unit: ms)
+int32 blend_percentage # blending value: expressed as a percentage (unit: %, and the minimum value of 0 means no blending)
+bool fine_goal         # precise position mode : If activated, the amount of error in the final position will converge more.
+---
+# ok :  set motion status 
+bool ok

@@ -1,0 +1,8 @@
+# Request part
+string command
+string command_parameter_string
+
+---
+# Response part
+bool is_success
+string message
