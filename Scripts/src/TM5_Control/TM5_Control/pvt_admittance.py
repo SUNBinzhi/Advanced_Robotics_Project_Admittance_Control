@@ -128,7 +128,13 @@ def inverse_controller(chain,pos,euler):
     result = chain.inverse_kinematics(pos,euler,orientation_mode="all",optimizer='least_squares')[2:links_len-1]
     return result
 
+def degree_to_radian(angles):
+    result = [math.degrees(angles) for angles in angles]
+    return result
 
+def radian_to_degree(radians):
+    result = [math.degrees(radians) for radians in radians]
+    return result
 """
 Sensor Functions
 """
@@ -175,12 +181,14 @@ class ModbusRobotIQ:
             pass
 
         return results
-    
+
+
 
 """
 Control Loop Funtion
 """
 def Control_Loop(chain,initial_joints,D_Pos,D_Ori,publisher):
+    global joint_pos
     # Initial Parameters
     t = 0
     links_len = len(chain.links)
@@ -188,6 +196,9 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori,publisher):
     arm_desired_twist_adm_ = np.zeros((6, 1))
     desired_pose_position_ = D_Pos
     desired_pose_orientation_ = R.from_quat(D_Ori)
+    pvt_duration = 0.1
+    pvt_velocity = [0,0,0,0,0,0]
+    positions = [0,0,0,0,0,0]
     
     """Sensor"""
     client_ft = ModbusRobotIQ(method="rtu", port="COM3", stopbits=1, bytesize=8, parity='N', baudrate=19200)
@@ -197,6 +208,10 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori,publisher):
     for i in range(100):
         d.ctrl = initial_joints
         mj.mj_step(m, d)
+        positions[:3] = [pos * 1000 for pos in D_Pos[:3]]
+        positions[3:6] = R.from_quat(d.xquat[7]).as_euler('yzx')
+
+        publisher_node.publish_positions_with_duration(positions, pvt_duration,pvt_velocity)
         
     
     with mj.viewer.launch_passive(m, d) as viewer:
@@ -220,12 +235,15 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori,publisher):
             print( d.xfrc_applied[links_len-2])
 
             wrench_external_ = applied_force.reshape(-1, 1)/2
+            
+            
             arm_position_ = np.array(d.xpos[links_len-2]).reshape(-1, 1)  # Current arm end effector position
             arm_orientation_ = R.from_quat(d.xquat[links_len-2])  # Current arm end effector orientation mujoco
 
 
             current_angular,current_linear= forward_controller(chain,d.qpos[0:links_len-3])
             arm_orientation_ = R.from_matrix(current_angular)  # Current arm end effector orientation ikpy
+            
             arm_desired_twist_adm_,linear_disp,angular_disp,error = admittance_control_fixed(d,error, 
                         arm_position_, 
                         desired_pose_position_, 
@@ -258,8 +276,12 @@ def Control_Loop(chain,initial_joints,D_Pos,D_Ori,publisher):
 
 
             d.ctrl[0:links_len-3] = result_check
-            # print(links_len-3)
             mj.mj_step(m, d)
+            
+            positions[:3] = [new_linear * 1000 for new_linear in new_linear[:3]]
+            positions[3:6] = R.from_quat(d.xquat[7]).as_euler('yzx')
+            publisher_node.publish_positions_with_duration(positions, pvt_duration,pvt_velocity)
+            # print(links_len-3)
             # time.sleep(0.01)
  
 """
